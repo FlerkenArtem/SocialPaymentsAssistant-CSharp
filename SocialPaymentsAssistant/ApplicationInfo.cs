@@ -15,7 +15,6 @@ namespace SocialPaymentsAssistant
         public string EmployeeName { get; set; }
         public string EmployeePosition { get; set; }
         public string BranchName { get; set; }
-        public string ApplicantAddress { get; set; }
         public string ApplicantInn { get; set; }
         public string ApplicantPhone { get; set; }
     }

@@ -8,6 +8,7 @@ using System.Text;
 using System.Windows.Forms;
 using SocialPaymentsAssistant.Models;
 using Npgsql;
+using System.IO; // Добавляем using для Path и File
 
 namespace SocialPaymentsAssistant
 {
@@ -50,7 +51,43 @@ namespace SocialPaymentsAssistant
         private void SetupDataGridViews()
         {
             // Настройка таблицы "Мои заявки"
+            myApplicationsTableView.AutoGenerateColumns = false;
             myApplicationsTableView.DataSource = _myApplicationsDataView;
+
+            // Добавляем колонки вручную для "Мои заявки"
+            myApplicationsTableView.Columns.Clear();
+            myApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "ID",
+                HeaderText = "ID",
+                Name = "ID",
+                Visible = false
+            });
+            myApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Тип выплаты",
+                HeaderText = "Тип выплаты",
+                Name = "Тип выплаты"
+            });
+            myApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Дата подачи",
+                HeaderText = "Дата подачи",
+                Name = "Дата подачи"
+            });
+            myApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Сумма",
+                HeaderText = "Сумма",
+                Name = "Сумма"
+            });
+            myApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Статус",
+                HeaderText = "Статус",
+                Name = "Статус"
+            });
+
             myApplicationsTableView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             myApplicationsTableView.MultiSelect = false;
             myApplicationsTableView.ReadOnly = true;
@@ -58,19 +95,42 @@ namespace SocialPaymentsAssistant
             myApplicationsTableView.RowHeadersVisible = false;
 
             // Настройка таблицы "Принятые заявки"
+            acceptedApplicationsTableView.AutoGenerateColumns = false;
             acceptedApplicationsTableView.DataSource = _acceptedApplicationsDataView;
+
+            // Добавляем колонки вручную для "Принятые заявки"
+            acceptedApplicationsTableView.Columns.Clear();
+            acceptedApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "ID",
+                HeaderText = "ID",
+                Name = "ID",
+                Visible = false
+            });
+            acceptedApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Тип выплаты",
+                HeaderText = "Тип выплаты",
+                Name = "Тип выплаты"
+            });
+            acceptedApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Дата принятия",
+                HeaderText = "Дата принятия",
+                Name = "Дата принятия"
+            });
+            acceptedApplicationsTableView.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Сумма",
+                HeaderText = "Сумма",
+                Name = "Сумма"
+            });
+
             acceptedApplicationsTableView.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             acceptedApplicationsTableView.MultiSelect = false;
             acceptedApplicationsTableView.ReadOnly = true;
             acceptedApplicationsTableView.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             acceptedApplicationsTableView.RowHeadersVisible = false;
-
-            // Скрываем колонки с ID
-            if (myApplicationsTableView.Columns.Contains("ID"))
-                myApplicationsTableView.Columns["ID"].Visible = false;
-
-            if (acceptedApplicationsTableView.Columns.Contains("ID"))
-                acceptedApplicationsTableView.Columns["ID"].Visible = false;
         }
 
         private DataTable ConvertMyApplicationsModelToDataTable()
@@ -102,14 +162,15 @@ namespace SocialPaymentsAssistant
         {
             DataTable dataTable = new DataTable();
 
-            // Создаем колонки
+            // Создаем колонки для отображаемых данных
             for (int i = 0; i < _acceptedApplicationsModel.ColumnCount; i++)
             {
                 dataTable.Columns.Add(_acceptedApplicationsModel.GetColumnName(i));
             }
 
-            // Добавляем скрытые колонки для данных документа
-            dataTable.Columns.Add("CertificateData", typeof(byte[]));
+            // Добавляем скрытые колонки для данных документа с типом object (не byte[])
+            // чтобы избежать автоматического преобразования в изображение
+            dataTable.Columns.Add("CertificateData", typeof(object));
             dataTable.Columns.Add("CertificateFileName", typeof(string));
 
             // Заполняем данные
@@ -124,11 +185,12 @@ namespace SocialPaymentsAssistant
                     dataRow[col] = value ?? DBNull.Value;
                 }
 
-                // Дополнительные данные (UserRole)
+                // Дополнительные данные
                 var certificateData = _acceptedApplicationsModel.GetUserRoleData(row, 4);
                 var fileName = _acceptedApplicationsModel.GetUserRoleData(row, 5);
 
-                dataRow["CertificateData"] = certificateData as byte[];
+                // Сохраняем как object, а не byte[]
+                dataRow["CertificateData"] = certificateData ?? DBNull.Value;
                 dataRow["CertificateFileName"] = fileName ?? string.Empty;
 
                 dataTable.Rows.Add(dataRow);
@@ -267,7 +329,8 @@ namespace SocialPaymentsAssistant
                 var certificateData = _acceptedApplicationsModel.GetUserRoleData(row, 4);
                 var fileName = _acceptedApplicationsModel.GetUserRoleData(row, 5);
 
-                dataRow["CertificateData"] = certificateData as byte[];
+                // Сохраняем как object
+                dataRow["CertificateData"] = certificateData ?? DBNull.Value;
                 dataRow["CertificateFileName"] = fileName ?? string.Empty;
 
                 _acceptedApplicationsDataTable.Rows.Add(dataRow);
@@ -366,20 +429,34 @@ namespace SocialPaymentsAssistant
                 return;
             }
 
-            byte[] documentData = (byte[])rowView["CertificateData"];
+            object data = rowView["CertificateData"];
+            byte[] documentData;
 
-            // Создаем временный файл для просмотра
+            // Проверяем тип данных
+            if (data is byte[])
+            {
+                documentData = (byte[])data;
+            }
+            else
+            {
+                MessageBox.Show("Некорректный формат данных документа", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Создаем временный файл для просмотра - только TXT
             string tempFilePath = Path.Combine(Path.GetTempPath(),
-                $"Справка_{rowView["ID"]}_{DateTime.Now:ddMMyyyyHHmmss}.pdf");
+                $"Справка_{rowView["ID"]}_{DateTime.Now:ddMMyyyyHHmmss}.txt");
 
             try
             {
                 File.WriteAllBytes(tempFilePath, documentData);
 
-                // Открываем файл стандартным способом
+                // Открываем файл стандартным способом (блокнотом)
                 System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
                 {
-                    FileName = tempFilePath,
+                    FileName = "notepad.exe",
+                    Arguments = tempFilePath,
                     UseShellExecute = true
                 });
             }
@@ -410,14 +487,28 @@ namespace SocialPaymentsAssistant
                 return;
             }
 
-            byte[] documentData = (byte[])rowView["CertificateData"];
+            object data = rowView["CertificateData"];
+            byte[] documentData;
 
-            // Предлагаем выбрать место сохранения
+            if (data is byte[])
+            {
+                documentData = (byte[])data;
+            }
+            else
+            {
+                MessageBox.Show("Некорректный формат данных документа", "Ошибка",
+                    MessageBoxButtons.OK, MessageBoxIcon.Error);
+                return;
+            }
+
+            // Предлагаем выбрать место сохранения - только TXT
             using (SaveFileDialog saveDialog = new SaveFileDialog())
             {
-                saveDialog.Filter = "PDF документы (*.pdf)|*.pdf|Все файлы (*.*)|*.*";
-                saveDialog.FileName = $"Справка_{rowView["ID"]}_{DateTime.Now:ddMMyyyy}.pdf";
-                saveDialog.DefaultExt = ".pdf";
+                saveDialog.Filter = "Текстовые файлы (*.txt)|*.txt";
+                saveDialog.FileName = $"Справка_{rowView["ID"]}_{DateTime.Now:ddMMyyyy}.txt";
+                saveDialog.DefaultExt = ".txt";
+                saveDialog.OverwritePrompt = true;
+                saveDialog.ValidateNames = true;
 
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {

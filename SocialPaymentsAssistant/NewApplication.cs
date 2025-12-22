@@ -114,7 +114,7 @@ namespace SocialPaymentsAssistant
             // Вызываем хранимую процедуру new_application в указанном стиле
             string query = "CALL new_application(CAST(@applicant_id AS INTEGER), " +
                            "CAST(@type_name AS VARCHAR(38)), " +
-                           "CAST(@amount AS DECIMAL(10,2)))";
+                           "CAST(@amount AS DECIMAL))";
 
             var parameters = new Npgsql.NpgsqlParameter[]
             {

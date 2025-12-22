@@ -3,6 +3,8 @@ using System.Data;
 using System.Windows.Forms;
 using SocialPaymentsAssistant.Models;
 using Npgsql;
+using System.IO;
+using System.Text;
 
 namespace SocialPaymentsAssistant
 {
@@ -35,6 +37,7 @@ namespace SocialPaymentsAssistant
 
         private void SetupDataGridView()
         {
+            applicationsList.AutoGenerateColumns = false;
             applicationsList.DataSource = _applicationsDataView;
             applicationsList.SelectionMode = DataGridViewSelectionMode.FullRowSelect;
             applicationsList.MultiSelect = false;
@@ -42,22 +45,55 @@ namespace SocialPaymentsAssistant
             applicationsList.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.Fill;
             applicationsList.RowHeadersVisible = false;
 
-            // Скрываем ID колонку
-            if (applicationsList.Columns.Contains("ID заявки"))
-                applicationsList.Columns["ID заявки"].Visible = false;
+            // Добавляем колонки вручную
+            applicationsList.Columns.Clear();
+            applicationsList.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "ID заявки",
+                HeaderText = "ID заявки",
+                Name = "ID заявки",
+                Visible = false
+            });
+            applicationsList.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Заявитель",
+                HeaderText = "Заявитель",
+                Name = "Заявитель"
+            });
+            applicationsList.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Тип выплаты",
+                HeaderText = "Тип выплаты",
+                Name = "Тип выплаты"
+            });
+            applicationsList.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Дата создания",
+                HeaderText = "Дата создания",
+                Name = "Дата создания"
+            });
+            applicationsList.Columns.Add(new DataGridViewTextBoxColumn
+            {
+                DataPropertyName = "Сумма",
+                HeaderText = "Сумма",
+                Name = "Сумма"
+            });
+
+            for (int i = 0; i < applicationsList.Columns.Count; i++)
+            {
+                applicationsList.Columns[i].DataPropertyName = applicationsList.Columns[i].Name;
+            }
         }
 
         private DataTable ConvertApplicationsModelToDataTable()
         {
             DataTable dataTable = new DataTable();
 
-            // Создаем колонки
             for (int i = 0; i < _applicationsModel.ColumnCount; i++)
             {
                 dataTable.Columns.Add(_applicationsModel.GetColumnName(i));
             }
 
-            // Заполняем данные
             for (int row = 0; row < _applicationsModel.RowCount; row++)
             {
                 DataRow dataRow = dataTable.NewRow();
@@ -80,7 +116,7 @@ namespace SocialPaymentsAssistant
                     SELECT e.surname, e.name, e.patronymic, ep.position 
                     FROM employee e 
                     JOIN employee_position ep ON e.employee_position_id = ep.employee_position_id 
-                    WHERE e.employee_id = CAST(@employee_id as integer)";
+                    WHERE e.employee_id = @employee_id";
 
                 var parameters = new NpgsqlParameter[]
                 {
@@ -115,12 +151,10 @@ namespace SocialPaymentsAssistant
 
         private void SetupEventHandlers()
         {
-            // Обработчики кнопок
             open.Click += Open_Click;
             cancel.Click += Cancel_Click;
             accept.Click += Accept_Click;
 
-            // Обработчики меню
             empLogoutAct.Click += EmpLogoutAct_Click;
             empFullscreenAct.Click += EmpFullscreenAct_Click;
             empQuitAct.Click += EmpQuitAct_Click;
@@ -132,7 +166,6 @@ namespace SocialPaymentsAssistant
             _applicationsModel.RefreshData();
             _applicationsDataTable.Clear();
 
-            // Обновляем данные
             for (int row = 0; row < _applicationsModel.RowCount; row++)
             {
                 DataRow dataRow = _applicationsDataTable.NewRow();
@@ -177,7 +210,6 @@ namespace SocialPaymentsAssistant
                 return;
             }
 
-            // Запрос подтверждения
             DialogResult confirmResult = MessageBox.Show(
                 "Вы уверены, что хотите отклонить заявку?\n\n" +
                 "Данное действие необратимо. Для подтверждения введите пароль.",
@@ -188,15 +220,13 @@ namespace SocialPaymentsAssistant
             if (confirmResult != DialogResult.Yes)
                 return;
 
-            // Запрос пароля
             string password = ShowPasswordDialog("Подтверждение пароля", "Введите ваш пароль:");
             if (string.IsNullOrEmpty(password))
                 return;
 
             try
             {
-                // Вызов хранимой процедуры cancel_application
-                string query = "CALL cancel_application(CAST(@application_id as integer), CAST(@employee_password as varchar))";
+                string query = "CALL cancel_application(@application_id::integer, @employee_password::varchar)";
                 var parameters = new NpgsqlParameter[]
                 {
                     new NpgsqlParameter("@application_id", _currentApplicationId),
@@ -239,21 +269,17 @@ namespace SocialPaymentsAssistant
 
             try
             {
-                // Получаем текущую сумму заявки
                 double requestedAmount = GetApplicationAmount(_currentApplicationId);
 
-                // Запрос пароля
                 string password = ShowPasswordDialog("Подтверждение принятия", "Введите ваш пароль:");
                 if (string.IsNullOrEmpty(password))
                     return;
 
-                // Диалог для изменения суммы
                 double approvedAmount = ShowAmountDialog("Сумма выплаты",
                     "Введите сумму выплаты:", requestedAmount);
                 if (approvedAmount <= 0)
                     return;
 
-                // Подтверждение
                 DialogResult confirmResult = MessageBox.Show(
                     $"Вы уверены, что хотите принять заявку?\n\n" +
                     $"Сумма выплаты: {approvedAmount:F2} руб.\n" +
@@ -265,35 +291,49 @@ namespace SocialPaymentsAssistant
                 if (confirmResult != DialogResult.Yes)
                     return;
 
-                // Вызов хранимой процедуры accept_application
-                string query = "CALL accept_application((CAST(@application_id as integer), CAST(@employee_password as varchar), CAST(@new_amount as numeric(10,2)))";
-                var parameters = new NpgsqlParameter[]
+                // 1. Сначала вызываем хранимую процедуру для принятия заявки
+                string acceptQuery = "CALL accept_application(@application_id::integer, @employee_password::varchar, @new_amount::decimal)";
+                var acceptParameters = new NpgsqlParameter[]
                 {
                     new NpgsqlParameter("@application_id", _currentApplicationId),
                     new NpgsqlParameter("@employee_password", password),
                     new NpgsqlParameter("@new_amount", approvedAmount)
                 };
 
-                int result = DatabaseHelper.ExecuteNonQuery(query, parameters);
+                int result = DatabaseHelper.ExecuteNonQuery(acceptQuery, acceptParameters);
 
-                if (result >= 0)
+                if (result < -1)
                 {
-                    // Генерация и сохранение PDF-документа
-                    GenerateAndSaveCertificate(_currentApplicationId, requestedAmount, approvedAmount);
+                    MessageBox.Show("Не удалось принять заявку через хранимую процедуру", "Ошибка",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    return;
+                }
 
-                    MessageBox.Show("Заявка успешно принята и документ сформирован", "Успех",
-                        MessageBoxButtons.OK, MessageBoxIcon.Information);
-
-                    RefreshApplicationData();
-                    applicationText.Clear();
-                    _currentApplicationId = -1;
-                    tabControl.SelectedTab = empApplicationsTab;
+                // 2. Получаем данные для TXT документа
+                ApplicationInfo appInfo = GetApplicationInfoForCertificate(_currentApplicationId);
+                if (appInfo == null)
+                {
+                    MessageBox.Show("Заявка принята, но не удалось получить данные для документа", "Внимание",
+                        MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    // Продолжаем выполнение - заявка уже принята
                 }
                 else
                 {
-                    MessageBox.Show("Не удалось принять заявку", "Ошибка",
-                        MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    appInfo.RequestedAmount = requestedAmount;
+                    appInfo.ApprovedAmount = approvedAmount;
+
+                    // 3. Генерируем и сохраняем TXT документ
+                    byte[] txtData = GenerateTxtCertificate(appInfo);
+                    SaveTxtToDatabase(_currentApplicationId, txtData);
                 }
+
+                MessageBox.Show("Заявка успешно принята", "Успех",
+                    MessageBoxButtons.OK, MessageBoxIcon.Information);
+
+                RefreshApplicationData();
+                applicationText.Clear();
+                _currentApplicationId = -1;
+                tabControl.SelectedTab = empApplicationsTab;
             }
             catch (Exception ex)
             {
@@ -301,6 +341,142 @@ namespace SocialPaymentsAssistant
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        #region Генерация TXT документа
+
+        private byte[] GenerateTxtCertificate(ApplicationInfo appInfo)
+        {
+            // Заполняем пропущенные данные
+            appInfo.ApplicantName = appInfo.ApplicantName ?? "Не указано";
+            appInfo.PaymentType = appInfo.PaymentType ?? "Не указано";
+            appInfo.EmployeeName = appInfo.EmployeeName ?? "Не указано";
+            appInfo.EmployeePosition = appInfo.EmployeePosition ?? "Не указано";
+            appInfo.ApplicantInn = appInfo.ApplicantInn ?? "Не указано";
+            appInfo.ApplicantPhone = appInfo.ApplicantPhone ?? "Не указано";
+
+            StringBuilder sb = new StringBuilder();
+
+            // Заголовок
+            sb.AppendLine("================================================");
+            sb.AppendLine("            СПРАВКА");
+            sb.AppendLine("   о принятии заявки на социальную выплату");
+            sb.AppendLine("================================================");
+            sb.AppendLine();
+
+            // Информация о документе
+            sb.AppendLine($"Номер документа: СП-{appInfo.ApplicationId}-{DateTime.Now:yyyyMMdd}");
+            sb.AppendLine($"Дата формирования: {DateTime.Now:dd.MM.yyyy HH:mm}");
+            sb.AppendLine();
+
+            // Основные данные
+            sb.AppendLine("--- ОСНОВНЫЕ ДАННЫЕ ---");
+            sb.AppendLine($"Номер заявки: {appInfo.ApplicationId}");
+            sb.AppendLine($"Заявитель: {appInfo.ApplicantName}");
+            sb.AppendLine($"Тип выплаты: {appInfo.PaymentType}");
+            sb.AppendLine($"Дата подачи: {appInfo.CreationDate:dd.MM.yyyy HH:mm}");
+            sb.AppendLine($"Запрашиваемая сумма: {appInfo.RequestedAmount:F2} руб.");
+            sb.AppendLine($"Утвержденная сумма: {appInfo.ApprovedAmount:F2} руб.");
+            sb.AppendLine($"Дата принятия: {DateTime.Now:dd.MM.yyyy}");
+            sb.AppendLine();
+
+            // Информация о сотруднике
+            sb.AppendLine("--- ОТВЕТСТВЕННЫЙ СОТРУДНИК ---");
+            sb.AppendLine($"ФИО: {appInfo.EmployeeName}");
+            sb.AppendLine($"Должность: {appInfo.EmployeePosition}");
+            sb.AppendLine();
+
+            // Дополнительная информация
+            if (!string.IsNullOrEmpty(appInfo.ApplicantInn) && appInfo.ApplicantInn != "Не указано")
+                sb.AppendLine($"ИНН заявителя: {appInfo.ApplicantInn}");
+
+            if (!string.IsNullOrEmpty(appInfo.ApplicantPhone) && appInfo.ApplicantPhone != "Не указано")
+                sb.AppendLine($"Телефон заявителя: {appInfo.ApplicantPhone}");
+
+            sb.AppendLine();
+
+            // Подтверждение
+            sb.AppendLine("--- ПОДТВЕРЖДЕНИЕ ---");
+            sb.AppendLine("Настоящая справка подтверждает, что заявка на получение");
+            sb.AppendLine("социальной выплаты была рассмотрена и принята к исполнению.");
+            sb.AppendLine();
+            sb.AppendLine("Справка является официальным документом и может быть");
+            sb.AppendLine("использована для получения указанной социальной выплаты");
+            sb.AppendLine("в соответствии с установленным порядком.");
+            sb.AppendLine();
+
+            // Подпись
+            sb.AppendLine("_________________________");
+            sb.AppendLine(appInfo.EmployeeName);
+            sb.AppendLine(appInfo.EmployeePosition);
+            sb.AppendLine($"Дата: {DateTime.Now:dd.MM.yyyy}");
+            sb.AppendLine();
+
+            // Футер
+            sb.AppendLine("================================================");
+            sb.AppendLine($"Документ сформирован: {DateTime.Now:dd.MM.yyyy HH:mm:ss}");
+            sb.AppendLine("Система: Интерактивный помощник для составления заявлений");
+
+            return Encoding.UTF8.GetBytes(sb.ToString());
+        }
+
+        private bool SaveTxtToDatabase(int applicationId, byte[] txtData)
+        {
+            try
+            {
+                // Проверяем, есть ли уже сертификат
+                string checkQuery = "SELECT COUNT(*) FROM certificate WHERE application_id = @application_id";
+                var checkParams = new NpgsqlParameter[]
+                {
+                    new NpgsqlParameter("@application_id", applicationId)
+                };
+
+                var countResult = DatabaseHelper.ExecuteScalar(checkQuery, checkParams);
+                int count = (countResult != null && countResult != DBNull.Value) ?
+                           Convert.ToInt32(countResult) : 0;
+
+                if (count > 0)
+                {
+                    // Обновляем существующий
+                    string updateQuery = @"
+                        UPDATE certificate 
+                        SET date_and_time_of_creation = @creation_date, 
+                            document = @document  
+                        WHERE application_id = @application_id";
+
+                    var updateParams = new NpgsqlParameter[]
+                    {
+                        new NpgsqlParameter("@application_id", applicationId),
+                        new NpgsqlParameter("@creation_date", DateTime.Now),
+                        new NpgsqlParameter("@document", txtData)
+                    };
+
+                    return DatabaseHelper.ExecuteNonQuery(updateQuery, updateParams) > 0;
+                }
+                else
+                {
+                    // Вставляем новый
+                    string insertQuery = @"
+                        INSERT INTO certificate (application_id, date_and_time_of_creation, document) 
+                        VALUES (@application_id::integer, @creation_date::date, @document::bytea)";
+
+                    var insertParams = new NpgsqlParameter[]
+                    {
+                        new NpgsqlParameter("@application_id", applicationId),
+                        new NpgsqlParameter("@creation_date", DateTime.Now),
+                        new NpgsqlParameter("@document", txtData)
+                    };
+
+                    return DatabaseHelper.ExecuteNonQuery(insertQuery, insertParams) > 0;
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Ошибка сохранения сертификата в БД: {ex.Message}");
+                return false;
+            }
+        }
+
+        #endregion
 
         private void EmpLogoutAct_Click(object sender, EventArgs e)
         {
@@ -357,9 +533,9 @@ namespace SocialPaymentsAssistant
                     JOIN applicant app ON a.applicant_id = app.applicant_id 
                     JOIN type_of_social_payment tosp ON a.type_of_social_payment_id = tosp.type_of_social_payment_id 
                     JOIN application_status ast ON a.application_status_id = ast.application_status_id 
-                    JOIN employee e ON a.employee_id = e.employee_id 
-                    JOIN employee_position ep ON e.employee_position_id = ep.employee_position_id 
-                    WHERE a.application_id = (CAST(@application_id as integer)";
+                    LEFT JOIN employee e ON a.employee_id = e.employee_id 
+                    LEFT JOIN employee_position ep ON e.employee_position_id = ep.employee_position_id 
+                    WHERE a.application_id = @application_id";
 
                 var parameters = new NpgsqlParameter[]
                 {
@@ -372,45 +548,32 @@ namespace SocialPaymentsAssistant
                 {
                     DataRow row = dataTable.Rows[0];
 
-                    string details = $@"<html>
-                                        <head>
-                                        <style>
-                                        body {{ font-family: Arial, sans-serif; margin: 20px; }}
-                                        table {{ border-collapse: collapse; width: 100%; margin: 20px 0; }}
-                                        th, td {{ border: 1px solid #ddd; padding: 8px; text-align: left; }}
-                                        th {{ background-color: #f2f2f2; font-weight: bold; }}
-                                        h2 {{ color: #333; }}
-                                        </style>
-                                        </head>
-                                        <body>
-                                        <h2>Детали заявки #{row["application_id"]}</h2>
-                                        <table>
-                                        <tr><td><b>ID заявки:</b></td><td>{row["application_id"]}</td></tr>
-                                        <tr><td><b>ФИО заявителя:</b></td><td>{row["applicant_fio"]}</td></tr>
-                                        <tr><td><b>ИНН заявителя:</b></td><td>{row["inn"]}</td></tr>
-                                        <tr><td><b>Телефон заявителя:</b></td><td>{row["phone_number"]}</td></tr>
-                                        <tr><td><b>Тип выплаты:</b></td><td>{row["type_name"]}</td></tr>
-                                        <tr><td><b>Сумма:</b></td><td>{Convert.ToDouble(row["amount"]):F2} руб.</td></tr>
-                                        <tr><td><b>Дата подачи:</b></td><td>{Convert.ToDateTime(row["date_of_creation"]):dd.MM.yyyy HH:mm}</td></tr>
-                                        <tr><td><b>Статус:</b></td><td>{row["status"]}</td></tr>
-                                        <tr><td><b>Ответственный сотрудник:</b></td><td>{row["employee_fio"]}</td></tr>
-                                        <tr><td><b>Должность:</b></td><td>{row["position"]}</td></tr>
-                                        <tr><td><b>ID заявителя:</b></td><td>{row["applicant_id"]}</td></tr>
-                                        </table>
-                                        <p><i>Для принятия или отклонения заявки используйте кнопки ниже</i></p>
-                                        </body>
-                                        </html>";
+                    string details = $"=== ДЕТАЛИ ЗАЯВКИ #{row["application_id"]} ===\n\n" +
+                                   $"ID заявки: {row["application_id"]}\n" +
+                                   $"ФИО заявителя: {row["applicant_fio"]}\n" +
+                                   $"ИНН заявителя: {row["inn"]}\n" +
+                                   $"Телефон заявителя: {row["phone_number"]}\n" +
+                                   $"Тип выплаты: {row["type_name"]}\n" +
+                                   $"Сумма: {Convert.ToDouble(row["amount"]):F2} руб.\n" +
+                                   $"Дата подачи: {Convert.ToDateTime(row["date_of_creation"]):dd.MM.yyyy HH:mm}\n" +
+                                   $"Статус: {row["status"]}\n" +
+                                   $"Ответственный сотрудник: {row["employee_fio"]}\n" +
+                                   $"Должность: {row["position"]}\n" +
+                                   $"ID заявителя: {row["applicant_id"]}\n\n" +
+                                   $"Для принятия или отклонения заявки используйте кнопки ниже";
 
                     applicationText.Text = details;
                 }
                 else
                 {
+                    applicationText.Text = $"Заявка с ID {applicationId} не найдена в базе данных.";
                     MessageBox.Show($"Заявка с ID {applicationId} не найдена в базе данных.", "Предупреждение",
                         MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
             }
             catch (Exception ex)
             {
+                applicationText.Text = $"Ошибка загрузки деталей заявки: {ex.Message}";
                 MessageBox.Show($"Ошибка загрузки деталей заявки: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
@@ -420,7 +583,7 @@ namespace SocialPaymentsAssistant
         {
             try
             {
-                string query = "SELECT amount FROM application WHERE application_id = (CAST(@id as integer)";
+                string query = "SELECT amount FROM application WHERE application_id = @id";
                 var parameters = new NpgsqlParameter[]
                 {
                     new NpgsqlParameter("@id", applicationId)
@@ -440,11 +603,10 @@ namespace SocialPaymentsAssistant
             return 0;
         }
 
-        private void GenerateAndSaveCertificate(int applicationId, double requestedAmount, double approvedAmount)
+        private ApplicationInfo GetApplicationInfoForCertificate(int applicationId)
         {
             try
             {
-                // Получаем данные для справки
                 string query = @"
                     SELECT 
                         a.application_id, 
@@ -458,9 +620,9 @@ namespace SocialPaymentsAssistant
                     FROM application a 
                     JOIN applicant app ON a.applicant_id = app.applicant_id 
                     JOIN type_of_social_payment tosp ON a.type_of_social_payment_id = tosp.type_of_social_payment_id 
-                    JOIN employee e ON a.employee_id = e.employee_id 
-                    JOIN employee_position ep ON e.employee_position_id = ep.employee_position_id 
-                    WHERE a.application_id = (CAST(@application_id as integer) ";
+                    LEFT JOIN employee e ON a.employee_id = e.employee_id 
+                    LEFT JOIN employee_position ep ON e.employee_position_id = ep.employee_position_id 
+                    WHERE a.application_id = @application_id";
 
                 var parameters = new NpgsqlParameter[]
                 {
@@ -473,100 +635,32 @@ namespace SocialPaymentsAssistant
                 {
                     DataRow row = dataTable.Rows[0];
 
-                    // Создаем структуру с информацией о заявке
-                    var appInfo = new ApplicationInfo
+                    return new ApplicationInfo
                     {
                         ApplicationId = applicationId,
-                        ApplicantName = row["applicant_fio"].ToString(),
-                        PaymentType = row["type_name"].ToString(),
-                        CreationDate = Convert.ToDateTime(row["date_of_creation"]),
-                        RequestedAmount = requestedAmount,
-                        ApprovedAmount = approvedAmount,
-                        EmployeeName = row["employee_fio"].ToString(),
-                        EmployeePosition = row["position"].ToString(),
+                        ApplicantName = row["applicant_fio"]?.ToString() ?? "Не указано",
+                        PaymentType = row["type_name"]?.ToString() ?? "Не указано",
+                        CreationDate = row["date_of_creation"] != DBNull.Value ? Convert.ToDateTime(row["date_of_creation"]) : DateTime.Now,
+                        EmployeeName = row["employee_fio"]?.ToString() ?? "Не указано",
+                        EmployeePosition = row["position"]?.ToString() ?? "Не указано",
                         BranchName = "Отделение социальных выплат",
-                        ApplicantInn = row["inn"].ToString(),
-                        ApplicantPhone = row["phone_number"].ToString(),
-                        ApplicantAddress = "Адрес по регистрации"
+                        ApplicantInn = row["inn"]?.ToString() ?? "Не указано",
+                        ApplicantPhone = row["phone_number"]?.ToString() ?? "Не указано"
                     };
-
-                    // Генерируем PDF-документ
-                    var pdfGenerator = new PdfDocumentGenerator();
-                    byte[] pdfData = pdfGenerator.GenerateCertificate(appInfo);
-
-                    if (pdfData != null && pdfData.Length > 0)
-                    {
-                        // Проверяем, есть ли уже сертификат для этой заявки
-                        string checkQuery = "SELECT COUNT(*) FROM certificate WHERE application_id = @application_id";
-                        var checkParams = new NpgsqlParameter[]
-                        {
-                            new NpgsqlParameter("@application_id", applicationId)
-                        };
-
-                        var countResult = DatabaseHelper.ExecuteScalar(checkQuery, checkParams);
-                        int count = (countResult != null && countResult != DBNull.Value) ?
-                                   Convert.ToInt32(countResult) : 0;
-
-                        if (count > 0)
-                        {
-                            // Обновляем существующий сертификат
-                            string updateQuery = @"
-                                UPDATE certificate 
-                                SET date_and_time_of_creation = CAST(@creation_date as date), 
-                                    document = CAST(@document as bytea))  
-                                WHERE application_id = (CAST(@application_id as integer) ";
-
-                            var updateParams = new NpgsqlParameter[]
-                            {
-                                new NpgsqlParameter("@application_id", applicationId),
-                                new NpgsqlParameter("@creation_date", DateTime.Now),
-                                new NpgsqlParameter("@document", pdfData)
-                            };
-
-                            DatabaseHelper.ExecuteNonQuery(updateQuery, updateParams);
-                        }
-                        else
-                        {
-                            // Вставляем новый сертификат
-                            string insertQuery = @"
-                                INSERT INTO certificate (application_id, date_and_time_of_creation, document) 
-                                VALUES (CAST(@application_id as integer), CAST(@creation_date as date), CAST(@document as bytea))";
-
-                            var insertParams = new NpgsqlParameter[]
-                            {
-                                new NpgsqlParameter("@application_id", applicationId),
-                                new NpgsqlParameter("@creation_date", DateTime.Now),
-                                new NpgsqlParameter("@document", pdfData)
-                            };
-
-                            DatabaseHelper.ExecuteNonQuery(insertQuery, insertParams);
-                        }
-
-                        // Проверяем результат
-                        string verifyQuery = @"
-                            SELECT certificate_id, date_and_time_of_creation, LENGTH(document) as doc_size 
-                            FROM certificate WHERE application_id = CAST(@application_id as integer)";
-
-                        var verifyResult = DatabaseHelper.ExecuteQuery(verifyQuery, parameters);
-
-                        if (verifyResult != null && verifyResult.Rows.Count > 0)
-                        {
-                            Console.WriteLine($"Сертификат успешно сохранен в БД: ID={verifyResult.Rows[0]["certificate_id"]}, " +
-                                            $"Размер={verifyResult.Rows[0]["doc_size"]} байт");
-                        }
-                    }
-                    else
-                    {
-                        MessageBox.Show("Не удалось сгенерировать PDF-документ", "Ошибка",
-                            MessageBoxButtons.OK, MessageBoxIcon.Warning);
-                    }
+                }
+                else
+                {
+                    MessageBox.Show($"Не найдены данные для заявки #{applicationId}", "Ошибка данных",
+                        MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Ошибка при генерации сертификата: {ex.Message}", "Ошибка",
+                MessageBox.Show($"Ошибка при получении данных для сертификата: {ex.Message}", "Ошибка",
                     MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
+
+            return null;
         }
 
         private string ShowPasswordDialog(string title, string prompt)

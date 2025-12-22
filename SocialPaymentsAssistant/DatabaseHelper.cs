@@ -6,7 +6,7 @@ namespace SocialPaymentsAssistant
     public static class DatabaseHelper
     {
         private static string connectionString = "Host=localhost;Database=social_payments_assistant;Username=postgres;Password=postgres";
-
+        public static string ConnectionString => connectionString;
         public static bool TestConnection()
         {
             try
