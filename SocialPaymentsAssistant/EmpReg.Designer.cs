@@ -642,6 +642,12 @@
             groupBox6.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
+
+            this.comboBox1.Name = "branchOffice";
+            this.comboBox2.Name = "department";
+            this.comboBox3.Name = "position";
+            this.button1.Name = "branchOfficeFilterBtn";
+
         }
 
         #endregion

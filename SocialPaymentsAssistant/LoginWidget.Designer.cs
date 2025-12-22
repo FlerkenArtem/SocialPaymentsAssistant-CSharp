@@ -59,7 +59,7 @@
             startRegistrationButton.TabIndex = 1;
             startRegistrationButton.Text = "Регистрация";
             startRegistrationButton.UseVisualStyleBackColor = true;
-            startRegistrationButton.Click += button1_Click;
+            startRegistrationButton.Click += startRegistrationButton_Click;
             // 
             // loginEdit
             // 
@@ -85,6 +85,7 @@
             endLoginButton.AutoSize = true;
             endLoginButton.Location = new Point(336, 408);
             endLoginButton.Name = "endLoginButton";
+            endLoginButton.Click += endLoginButton_Click;
             endLoginButton.Size = new Size(61, 30);
             endLoginButton.TabIndex = 4;
             endLoginButton.Text = "Войти";

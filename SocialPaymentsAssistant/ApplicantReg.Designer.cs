@@ -51,7 +51,35 @@
             applicantRegOK = new Button();
             panel1 = new Panel();
             groupBox7 = new GroupBox();
+            label52 = new Label();
+            label51 = new Label();
+            label50 = new Label();
+            label49 = new Label();
+            label48 = new Label();
+            label47 = new Label();
+            label46 = new Label();
+            label45 = new Label();
+            label44 = new Label();
+            label43 = new Label();
+            label42 = new Label();
+            noPatronymicCheckBank = new CheckBox();
+            openningDate = new DateTimePicker();
+            bankPhone = new TextBox();
+            patronymicBank = new TextBox();
+            nameBank = new TextBox();
+            surnameBank = new TextBox();
+            recepientsAccount = new TextBox();
+            correspondentsAccountEdit = new TextBox();
+            kppEdit = new TextBox();
+            innEdit = new TextBox();
+            bikEdit = new TextBox();
+            bankName = new ComboBox();
             groupBox5 = new GroupBox();
+            groupBox11 = new GroupBox();
+            policyAddScan = new Button();
+            policyNumberEdit = new TextBox();
+            label41 = new Label();
+            label40 = new Label();
             groupBox10 = new GroupBox();
             snilsAddScan = new Button();
             label38 = new Label();
@@ -100,7 +128,7 @@
             label25 = new Label();
             areaCheckActualAddress = new CheckBox();
             districtCheckActualAddress = new CheckBox();
-            checkBox7 = new CheckBox();
+            flatCheckActualAddress = new CheckBox();
             houseComboBoxActualAddress = new ComboBox();
             StreetComboBoxActualAddress = new ComboBox();
             areaComboBoxActualAddress = new ComboBox();
@@ -126,39 +154,12 @@
             cityComboBoxRegAddress = new ComboBox();
             districtComboBoxRegAddress = new ComboBox();
             regionComboBoxRegAddress = new ComboBox();
-            groupBox11 = new GroupBox();
-            policyNumberEdit = new TextBox();
-            label40 = new Label();
-            label41 = new Label();
-            policyAddScan = new Button();
-            bankName = new ComboBox();
-            bikEdit = new TextBox();
-            innEdit = new TextBox();
-            kppEdit = new TextBox();
-            correspondentsAccountEdit = new TextBox();
-            recepientsAccount = new TextBox();
-            surnameBank = new TextBox();
-            nameBank = new TextBox();
-            patronymicBank = new TextBox();
-            bankPhone = new TextBox();
-            openningDate = new DateTimePicker();
-            noPatronymicCheckBank = new CheckBox();
-            label42 = new Label();
-            label43 = new Label();
-            label44 = new Label();
-            label45 = new Label();
-            label46 = new Label();
-            label47 = new Label();
-            label48 = new Label();
-            label49 = new Label();
-            label50 = new Label();
-            label51 = new Label();
-            label52 = new Label();
             groupBox6.SuspendLayout();
             groupBox1.SuspendLayout();
             panel1.SuspendLayout();
             groupBox7.SuspendLayout();
             groupBox5.SuspendLayout();
+            groupBox11.SuspendLayout();
             groupBox10.SuspendLayout();
             groupBox9.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)pension).BeginInit();
@@ -166,7 +167,6 @@
             groupBox2.SuspendLayout();
             groupBox4.SuspendLayout();
             groupBox3.SuspendLayout();
-            groupBox11.SuspendLayout();
             SuspendLayout();
             // 
             // groupBox6
@@ -275,7 +275,7 @@
             groupBox1.Controls.Add(label2);
             groupBox1.Location = new Point(10, 10);
             groupBox1.Name = "groupBox1";
-            groupBox1.Size = new Size(690, 160);
+            groupBox1.Size = new Size(669, 160);
             groupBox1.TabIndex = 6;
             groupBox1.TabStop = false;
             groupBox1.Text = "Данные для входа";
@@ -283,7 +283,7 @@
             // password2
             // 
             password2.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            password2.Location = new Point(143, 119);
+            password2.Location = new Point(122, 119);
             password2.MaxLength = 20;
             password2.Name = "password2";
             password2.PasswordChar = '*';
@@ -293,7 +293,7 @@
             // password
             // 
             password.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            password.Location = new Point(143, 86);
+            password.Location = new Point(122, 86);
             password.MaxLength = 20;
             password.Name = "password";
             password.PasswordChar = '*';
@@ -303,7 +303,7 @@
             // eMail
             // 
             eMail.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            eMail.Location = new Point(143, 53);
+            eMail.Location = new Point(122, 53);
             eMail.Name = "eMail";
             eMail.Size = new Size(541, 27);
             eMail.TabIndex = 4;
@@ -311,7 +311,7 @@
             // login
             // 
             login.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            login.Location = new Point(143, 20);
+            login.Location = new Point(122, 20);
             login.Name = "login";
             login.Size = new Size(541, 27);
             login.TabIndex = 4;
@@ -420,6 +420,196 @@
             groupBox7.TabStop = false;
             groupBox7.Text = "Данные банковского счета";
             // 
+            // label52
+            // 
+            label52.AutoSize = true;
+            label52.Location = new Point(6, 360);
+            label52.Name = "label52";
+            label52.Size = new Size(255, 20);
+            label52.TabIndex = 4;
+            label52.Text = "Номер телефона банка получателя";
+            label52.Click += label52_Click;
+            // 
+            // label51
+            // 
+            label51.AutoSize = true;
+            label51.Location = new Point(6, 329);
+            label51.Name = "label51";
+            label51.Size = new Size(110, 20);
+            label51.TabIndex = 4;
+            label51.Text = "Дата открытия";
+            // 
+            // label50
+            // 
+            label50.AutoSize = true;
+            label50.Location = new Point(6, 294);
+            label50.Name = "label50";
+            label50.Size = new Size(155, 20);
+            label50.TabIndex = 4;
+            label50.Text = "Отчество получателя";
+            // 
+            // label49
+            // 
+            label49.AutoSize = true;
+            label49.Location = new Point(6, 261);
+            label49.Name = "label49";
+            label49.Size = new Size(122, 20);
+            label49.TabIndex = 4;
+            label49.Text = "Имя получателя";
+            // 
+            // label48
+            // 
+            label48.AutoSize = true;
+            label48.Location = new Point(6, 228);
+            label48.Name = "label48";
+            label48.Size = new Size(156, 20);
+            label48.TabIndex = 4;
+            label48.Text = "Фамилия получателя";
+            // 
+            // label47
+            // 
+            label47.AutoSize = true;
+            label47.Location = new Point(6, 195);
+            label47.Name = "label47";
+            label47.Size = new Size(263, 20);
+            label47.TabIndex = 4;
+            label47.Text = "Счет получателя в банке получателя";
+            // 
+            // label46
+            // 
+            label46.AutoSize = true;
+            label46.Location = new Point(6, 162);
+            label46.Name = "label46";
+            label46.Size = new Size(161, 20);
+            label46.TabIndex = 4;
+            label46.Text = "К/С Банка получателя";
+            // 
+            // label45
+            // 
+            label45.AutoSize = true;
+            label45.Location = new Point(6, 129);
+            label45.Name = "label45";
+            label45.Size = new Size(168, 20);
+            label45.TabIndex = 4;
+            label45.Text = "КПП банка получателя";
+            // 
+            // label44
+            // 
+            label44.AutoSize = true;
+            label44.Location = new Point(6, 96);
+            label44.Name = "label44";
+            label44.Size = new Size(170, 20);
+            label44.TabIndex = 4;
+            label44.Text = "ИНН Банка получателя";
+            // 
+            // label43
+            // 
+            label43.AutoSize = true;
+            label43.Location = new Point(6, 63);
+            label43.Name = "label43";
+            label43.Size = new Size(166, 20);
+            label43.TabIndex = 4;
+            label43.Text = "БИК Банка получателя";
+            // 
+            // label42
+            // 
+            label42.AutoSize = true;
+            label42.Location = new Point(6, 29);
+            label42.Name = "label42";
+            label42.Size = new Size(244, 20);
+            label42.TabIndex = 4;
+            label42.Text = "Наименование банка получателя";
+            label42.Click += label42_Click;
+            // 
+            // noPatronymicCheckBank
+            // 
+            noPatronymicCheckBank.AutoSize = true;
+            noPatronymicCheckBank.Location = new Point(597, 293);
+            noPatronymicCheckBank.Name = "noPatronymicCheckBank";
+            noPatronymicCheckBank.Size = new Size(120, 24);
+            noPatronymicCheckBank.TabIndex = 3;
+            noPatronymicCheckBank.Text = "Нет отчества";
+            noPatronymicCheckBank.UseVisualStyleBackColor = true;
+            // 
+            // openningDate
+            // 
+            openningDate.Location = new Point(275, 324);
+            openningDate.Name = "openningDate";
+            openningDate.Size = new Size(442, 27);
+            openningDate.TabIndex = 2;
+            openningDate.Value = new DateTime(2000, 1, 1, 0, 0, 0, 0);
+            // 
+            // bankPhone
+            // 
+            bankPhone.Location = new Point(275, 357);
+            bankPhone.Name = "bankPhone";
+            bankPhone.Size = new Size(442, 27);
+            bankPhone.TabIndex = 1;
+            // 
+            // patronymicBank
+            // 
+            patronymicBank.Location = new Point(275, 291);
+            patronymicBank.Name = "patronymicBank";
+            patronymicBank.Size = new Size(312, 27);
+            patronymicBank.TabIndex = 1;
+            // 
+            // nameBank
+            // 
+            nameBank.Location = new Point(275, 258);
+            nameBank.Name = "nameBank";
+            nameBank.Size = new Size(442, 27);
+            nameBank.TabIndex = 1;
+            // 
+            // surnameBank
+            // 
+            surnameBank.Location = new Point(275, 225);
+            surnameBank.Name = "surnameBank";
+            surnameBank.Size = new Size(442, 27);
+            surnameBank.TabIndex = 1;
+            // 
+            // recepientsAccount
+            // 
+            recepientsAccount.Location = new Point(275, 192);
+            recepientsAccount.Name = "recepientsAccount";
+            recepientsAccount.Size = new Size(442, 27);
+            recepientsAccount.TabIndex = 1;
+            // 
+            // correspondentsAccountEdit
+            // 
+            correspondentsAccountEdit.Location = new Point(275, 159);
+            correspondentsAccountEdit.Name = "correspondentsAccountEdit";
+            correspondentsAccountEdit.Size = new Size(442, 27);
+            correspondentsAccountEdit.TabIndex = 1;
+            // 
+            // kppEdit
+            // 
+            kppEdit.Location = new Point(275, 126);
+            kppEdit.Name = "kppEdit";
+            kppEdit.Size = new Size(442, 27);
+            kppEdit.TabIndex = 1;
+            // 
+            // innEdit
+            // 
+            innEdit.Location = new Point(275, 93);
+            innEdit.Name = "innEdit";
+            innEdit.Size = new Size(442, 27);
+            innEdit.TabIndex = 1;
+            // 
+            // bikEdit
+            // 
+            bikEdit.Location = new Point(275, 60);
+            bikEdit.Name = "bikEdit";
+            bikEdit.Size = new Size(442, 27);
+            bikEdit.TabIndex = 1;
+            // 
+            // bankName
+            // 
+            bankName.FormattingEnabled = true;
+            bankName.Location = new Point(275, 26);
+            bankName.Name = "bankName";
+            bankName.Size = new Size(442, 28);
+            bankName.TabIndex = 0;
+            // 
             // groupBox5
             // 
             groupBox5.Controls.Add(groupBox11);
@@ -436,6 +626,65 @@
             groupBox5.TabIndex = 10;
             groupBox5.TabStop = false;
             groupBox5.Text = "Документы";
+            // 
+            // groupBox11
+            // 
+            groupBox11.AutoSize = true;
+            groupBox11.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            groupBox11.Controls.Add(policyAddScan);
+            groupBox11.Controls.Add(policyNumberEdit);
+            groupBox11.Controls.Add(label41);
+            groupBox11.Controls.Add(label40);
+            groupBox11.Location = new Point(19, 691);
+            groupBox11.Name = "groupBox11";
+            groupBox11.Size = new Size(690, 124);
+            groupBox11.TabIndex = 8;
+            groupBox11.TabStop = false;
+            groupBox11.Text = "Данные полиса ОМС";
+            // 
+            // policyAddScan
+            // 
+            policyAddScan.Anchor = AnchorStyles.Right;
+            policyAddScan.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            policyAddScan.Location = new Point(181, 69);
+            policyAddScan.Name = "policyAddScan";
+            policyAddScan.Size = new Size(490, 29);
+            policyAddScan.TabIndex = 22;
+            policyAddScan.Text = "Добавить";
+            policyAddScan.UseVisualStyleBackColor = true;
+            policyAddScan.UseWaitCursor = true;
+            policyAddScan.Click += button2_Click;
+            // 
+            // policyNumberEdit
+            // 
+            policyNumberEdit.Anchor = AnchorStyles.Right;
+            policyNumberEdit.Location = new Point(181, 36);
+            policyNumberEdit.Name = "policyNumberEdit";
+            policyNumberEdit.Size = new Size(490, 27);
+            policyNumberEdit.TabIndex = 18;
+            policyNumberEdit.UseWaitCursor = true;
+            // 
+            // label41
+            // 
+            label41.Anchor = AnchorStyles.Left;
+            label41.AutoSize = true;
+            label41.Location = new Point(10, 73);
+            label41.Name = "label41";
+            label41.Size = new Size(42, 20);
+            label41.TabIndex = 19;
+            label41.Text = "Скан";
+            label41.UseWaitCursor = true;
+            // 
+            // label40
+            // 
+            label40.Anchor = AnchorStyles.Left;
+            label40.AutoSize = true;
+            label40.Location = new Point(10, 39);
+            label40.Name = "label40";
+            label40.Size = new Size(57, 20);
+            label40.TabIndex = 20;
+            label40.Text = "Номер";
+            label40.UseWaitCursor = true;
             // 
             // groupBox10
             // 
@@ -667,6 +916,7 @@
             PassportScan.TabIndex = 16;
             PassportScan.Text = "Добавить";
             PassportScan.UseVisualStyleBackColor = true;
+            PassportScan.Click += new System.EventHandler(this.PassportScan_Click);
             // 
             // label32
             // 
@@ -834,7 +1084,7 @@
             groupBox4.Controls.Add(label25);
             groupBox4.Controls.Add(areaCheckActualAddress);
             groupBox4.Controls.Add(districtCheckActualAddress);
-            groupBox4.Controls.Add(checkBox7);
+            groupBox4.Controls.Add(flatCheckActualAddress);
             groupBox4.Controls.Add(houseComboBoxActualAddress);
             groupBox4.Controls.Add(StreetComboBoxActualAddress);
             groupBox4.Controls.Add(areaComboBoxActualAddress);
@@ -962,16 +1212,16 @@
             districtCheckActualAddress.Text = "Нет района";
             districtCheckActualAddress.UseVisualStyleBackColor = true;
             // 
-            // checkBox7
+            // flatCheckActualAddress
             // 
-            checkBox7.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
-            checkBox7.AutoSize = true;
-            checkBox7.Location = new Point(569, 261);
-            checkBox7.Name = "checkBox7";
-            checkBox7.Size = new Size(127, 24);
-            checkBox7.TabIndex = 10;
-            checkBox7.Text = "Нет квартиры";
-            checkBox7.UseVisualStyleBackColor = true;
+            flatCheckActualAddress.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
+            flatCheckActualAddress.AutoSize = true;
+            flatCheckActualAddress.Location = new Point(569, 261);
+            flatCheckActualAddress.Name = "flatCheckActualAddress";
+            flatCheckActualAddress.Size = new Size(127, 24);
+            flatCheckActualAddress.TabIndex = 10;
+            flatCheckActualAddress.Text = "Нет квартиры";
+            flatCheckActualAddress.UseVisualStyleBackColor = true;
             // 
             // houseComboBoxActualAddress
             // 
@@ -1235,255 +1485,6 @@
             regionComboBoxRegAddress.Size = new Size(509, 28);
             regionComboBoxRegAddress.TabIndex = 0;
             // 
-            // groupBox11
-            // 
-            groupBox11.AutoSize = true;
-            groupBox11.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            groupBox11.Controls.Add(policyAddScan);
-            groupBox11.Controls.Add(policyNumberEdit);
-            groupBox11.Controls.Add(label41);
-            groupBox11.Controls.Add(label40);
-            groupBox11.Location = new Point(19, 691);
-            groupBox11.Name = "groupBox11";
-            groupBox11.Size = new Size(690, 124);
-            groupBox11.TabIndex = 8;
-            groupBox11.TabStop = false;
-            groupBox11.Text = "Данные полиса ОМС";
-            // 
-            // policyNumberEdit
-            // 
-            policyNumberEdit.Anchor = AnchorStyles.Right;
-            policyNumberEdit.Location = new Point(181, 36);
-            policyNumberEdit.Name = "policyNumberEdit";
-            policyNumberEdit.Size = new Size(490, 27);
-            policyNumberEdit.TabIndex = 18;
-            policyNumberEdit.UseWaitCursor = true;
-            // 
-            // label40
-            // 
-            label40.Anchor = AnchorStyles.Left;
-            label40.AutoSize = true;
-            label40.Location = new Point(10, 39);
-            label40.Name = "label40";
-            label40.Size = new Size(57, 20);
-            label40.TabIndex = 20;
-            label40.Text = "Номер";
-            label40.UseWaitCursor = true;
-            // 
-            // label41
-            // 
-            label41.Anchor = AnchorStyles.Left;
-            label41.AutoSize = true;
-            label41.Location = new Point(10, 73);
-            label41.Name = "label41";
-            label41.Size = new Size(42, 20);
-            label41.TabIndex = 19;
-            label41.Text = "Скан";
-            label41.UseWaitCursor = true;
-            // 
-            // policyAddScan
-            // 
-            policyAddScan.Anchor = AnchorStyles.Right;
-            policyAddScan.AutoSizeMode = AutoSizeMode.GrowAndShrink;
-            policyAddScan.Location = new Point(181, 69);
-            policyAddScan.Name = "policyAddScan";
-            policyAddScan.Size = new Size(490, 29);
-            policyAddScan.TabIndex = 22;
-            policyAddScan.Text = "Добавить";
-            policyAddScan.UseVisualStyleBackColor = true;
-            policyAddScan.UseWaitCursor = true;
-            policyAddScan.Click += button2_Click;
-            // 
-            // bankName
-            // 
-            bankName.FormattingEnabled = true;
-            bankName.Location = new Point(275, 26);
-            bankName.Name = "bankName";
-            bankName.Size = new Size(442, 28);
-            bankName.TabIndex = 0;
-            // 
-            // bikEdit
-            // 
-            bikEdit.Location = new Point(275, 60);
-            bikEdit.Name = "bikEdit";
-            bikEdit.Size = new Size(442, 27);
-            bikEdit.TabIndex = 1;
-            // 
-            // innEdit
-            // 
-            innEdit.Location = new Point(275, 93);
-            innEdit.Name = "innEdit";
-            innEdit.Size = new Size(442, 27);
-            innEdit.TabIndex = 1;
-            // 
-            // kppEdit
-            // 
-            kppEdit.Location = new Point(275, 126);
-            kppEdit.Name = "kppEdit";
-            kppEdit.Size = new Size(442, 27);
-            kppEdit.TabIndex = 1;
-            // 
-            // correspondentsAccountEdit
-            // 
-            correspondentsAccountEdit.Location = new Point(275, 159);
-            correspondentsAccountEdit.Name = "correspondentsAccountEdit";
-            correspondentsAccountEdit.Size = new Size(442, 27);
-            correspondentsAccountEdit.TabIndex = 1;
-            // 
-            // recepientsAccount
-            // 
-            recepientsAccount.Location = new Point(275, 192);
-            recepientsAccount.Name = "recepientsAccount";
-            recepientsAccount.Size = new Size(442, 27);
-            recepientsAccount.TabIndex = 1;
-            // 
-            // surnameBank
-            // 
-            surnameBank.Location = new Point(275, 225);
-            surnameBank.Name = "surnameBank";
-            surnameBank.Size = new Size(442, 27);
-            surnameBank.TabIndex = 1;
-            // 
-            // nameBank
-            // 
-            nameBank.Location = new Point(275, 258);
-            nameBank.Name = "nameBank";
-            nameBank.Size = new Size(442, 27);
-            nameBank.TabIndex = 1;
-            // 
-            // patronymicBank
-            // 
-            patronymicBank.Location = new Point(275, 291);
-            patronymicBank.Name = "patronymicBank";
-            patronymicBank.Size = new Size(312, 27);
-            patronymicBank.TabIndex = 1;
-            // 
-            // bankPhone
-            // 
-            bankPhone.Location = new Point(275, 357);
-            bankPhone.Name = "bankPhone";
-            bankPhone.Size = new Size(442, 27);
-            bankPhone.TabIndex = 1;
-            // 
-            // openningDate
-            // 
-            openningDate.Location = new Point(275, 324);
-            openningDate.Name = "openningDate";
-            openningDate.Size = new Size(442, 27);
-            openningDate.TabIndex = 2;
-            openningDate.Value = new DateTime(2000, 1, 1, 0, 0, 0, 0);
-            // 
-            // noPatronymicCheckBank
-            // 
-            noPatronymicCheckBank.AutoSize = true;
-            noPatronymicCheckBank.Location = new Point(597, 293);
-            noPatronymicCheckBank.Name = "noPatronymicCheckBank";
-            noPatronymicCheckBank.Size = new Size(120, 24);
-            noPatronymicCheckBank.TabIndex = 3;
-            noPatronymicCheckBank.Text = "Нет отчества";
-            noPatronymicCheckBank.UseVisualStyleBackColor = true;
-            // 
-            // label42
-            // 
-            label42.AutoSize = true;
-            label42.Location = new Point(6, 29);
-            label42.Name = "label42";
-            label42.Size = new Size(244, 20);
-            label42.TabIndex = 4;
-            label42.Text = "Наименование банка получателя";
-            label42.Click += label42_Click;
-            // 
-            // label43
-            // 
-            label43.AutoSize = true;
-            label43.Location = new Point(6, 63);
-            label43.Name = "label43";
-            label43.Size = new Size(166, 20);
-            label43.TabIndex = 4;
-            label43.Text = "БИК Банка получателя";
-            // 
-            // label44
-            // 
-            label44.AutoSize = true;
-            label44.Location = new Point(6, 96);
-            label44.Name = "label44";
-            label44.Size = new Size(170, 20);
-            label44.TabIndex = 4;
-            label44.Text = "ИНН Банка получателя";
-            // 
-            // label45
-            // 
-            label45.AutoSize = true;
-            label45.Location = new Point(6, 129);
-            label45.Name = "label45";
-            label45.Size = new Size(168, 20);
-            label45.TabIndex = 4;
-            label45.Text = "КПП банка получателя";
-            // 
-            // label46
-            // 
-            label46.AutoSize = true;
-            label46.Location = new Point(6, 162);
-            label46.Name = "label46";
-            label46.Size = new Size(161, 20);
-            label46.TabIndex = 4;
-            label46.Text = "К/С Банка получателя";
-            // 
-            // label47
-            // 
-            label47.AutoSize = true;
-            label47.Location = new Point(6, 195);
-            label47.Name = "label47";
-            label47.Size = new Size(263, 20);
-            label47.TabIndex = 4;
-            label47.Text = "Счет получателя в банке получателя";
-            // 
-            // label48
-            // 
-            label48.AutoSize = true;
-            label48.Location = new Point(6, 228);
-            label48.Name = "label48";
-            label48.Size = new Size(156, 20);
-            label48.TabIndex = 4;
-            label48.Text = "Фамилия получателя";
-            // 
-            // label49
-            // 
-            label49.AutoSize = true;
-            label49.Location = new Point(6, 261);
-            label49.Name = "label49";
-            label49.Size = new Size(122, 20);
-            label49.TabIndex = 4;
-            label49.Text = "Имя получателя";
-            // 
-            // label50
-            // 
-            label50.AutoSize = true;
-            label50.Location = new Point(6, 294);
-            label50.Name = "label50";
-            label50.Size = new Size(155, 20);
-            label50.TabIndex = 4;
-            label50.Text = "Отчество получателя";
-            // 
-            // label51
-            // 
-            label51.AutoSize = true;
-            label51.Location = new Point(6, 329);
-            label51.Name = "label51";
-            label51.Size = new Size(110, 20);
-            label51.TabIndex = 4;
-            label51.Text = "Дата открытия";
-            // 
-            // label52
-            // 
-            label52.AutoSize = true;
-            label52.Location = new Point(6, 360);
-            label52.Name = "label52";
-            label52.Size = new Size(255, 20);
-            label52.TabIndex = 4;
-            label52.Text = "Номер телефона банка получателя";
-            label52.Click += label52_Click;
-            // 
             // ApplicantReg
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -1503,6 +1504,8 @@
             groupBox7.PerformLayout();
             groupBox5.ResumeLayout(false);
             groupBox5.PerformLayout();
+            groupBox11.ResumeLayout(false);
+            groupBox11.PerformLayout();
             groupBox10.ResumeLayout(false);
             groupBox10.PerformLayout();
             groupBox9.ResumeLayout(false);
@@ -1516,8 +1519,6 @@
             groupBox4.PerformLayout();
             groupBox3.ResumeLayout(false);
             groupBox3.PerformLayout();
-            groupBox11.ResumeLayout(false);
-            groupBox11.PerformLayout();
             ResumeLayout(false);
             PerformLayout();
         }
@@ -1583,7 +1584,7 @@
         private Label label25;
         private CheckBox areaCheckActualAddress;
         private CheckBox districtCheckActualAddress;
-        private CheckBox checkBox7;
+        private CheckBox flatCheckActualAddress;
         private ComboBox houseComboBoxActualAddress;
         private ComboBox StreetComboBoxActualAddress;
         private ComboBox areaComboBoxActualAddress;

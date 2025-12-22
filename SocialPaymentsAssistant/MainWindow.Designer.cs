@@ -60,6 +60,8 @@
             branchOfficesAct = new ToolStripMenuItem();
             aboutAct = new ToolStripMenuItem();
             menuStrip = new MenuStrip();
+            showApplicationDoc = new Button();
+            saveApplicationDoc = new Button();
             tabControl1.SuspendLayout();
             myApplicationsTab.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)myApplicationsTableView).BeginInit();
@@ -192,6 +194,8 @@
             // 
             // acceptedApplications
             // 
+            acceptedApplications.Controls.Add(saveApplicationDoc);
+            acceptedApplications.Controls.Add(showApplicationDoc);
             acceptedApplications.Controls.Add(acceptedApplicationsTableView);
             acceptedApplications.Controls.Add(tableLayoutPanel2);
             acceptedApplications.Location = new Point(4, 29);
@@ -204,11 +208,12 @@
             // 
             // acceptedApplicationsTableView
             // 
+            acceptedApplicationsTableView.Anchor = AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Left | AnchorStyles.Right;
             acceptedApplicationsTableView.ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             acceptedApplicationsTableView.Location = new Point(6, 68);
             acceptedApplicationsTableView.Name = "acceptedApplicationsTableView";
             acceptedApplicationsTableView.RowHeadersWidth = 51;
-            acceptedApplicationsTableView.Size = new Size(756, 303);
+            acceptedApplicationsTableView.Size = new Size(756, 265);
             acceptedApplicationsTableView.TabIndex = 1;
             // 
             // tableLayoutPanel2
@@ -360,6 +365,26 @@
             menuStrip.Text = "menuStrip1";
             menuStrip.ItemClicked += menuStrip1_ItemClicked;
             // 
+            // showApplicationDoc
+            // 
+            showApplicationDoc.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            showApplicationDoc.Location = new Point(466, 339);
+            showApplicationDoc.Name = "showApplicationDoc";
+            showApplicationDoc.Size = new Size(162, 29);
+            showApplicationDoc.TabIndex = 2;
+            showApplicationDoc.Text = "Просмотр справки";
+            showApplicationDoc.UseVisualStyleBackColor = true;
+            // 
+            // saveApplicationDoc
+            // 
+            saveApplicationDoc.Anchor = AnchorStyles.Bottom | AnchorStyles.Right;
+            saveApplicationDoc.Location = new Point(634, 339);
+            saveApplicationDoc.Name = "saveApplicationDoc";
+            saveApplicationDoc.Size = new Size(125, 29);
+            saveApplicationDoc.TabIndex = 3;
+            saveApplicationDoc.Text = "Сохранить как";
+            saveApplicationDoc.UseVisualStyleBackColor = true;
+            // 
             // MainWindow
             // 
             AutoScaleDimensions = new SizeF(8F, 20F);
@@ -418,5 +443,7 @@
         private ComboBox paymentTypeComboBox;
         private Label label4;
         private Label label5;
+        private Button saveApplicationDoc;
+        private Button showApplicationDoc;
     }
 }
