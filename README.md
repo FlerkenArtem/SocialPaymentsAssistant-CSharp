@@ -120,6 +120,7 @@ SocialPaymentsAssistant/
 ├── social_payments_assistant.sql          # SQL-скрипт для создания БД 
 ├── LICENSE                                # Лицензия MIT
 └── README.md                              # Документация проекта
+Tests/                                     # Проект тестирования MSTest
 ```
 
 ## Архитектура и особенности реализации
