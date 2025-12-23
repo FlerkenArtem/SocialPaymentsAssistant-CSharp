@@ -1,3 +1,4 @@
 <Solution>
   <Project Path="SocialPaymentsAssistant/SocialPaymentsAssistant.csproj" />
+  <Project Path="Tests/Tests.csproj" Id="03966364-e9a5-4c85-9ecc-cf6121619084" />
 </Solution>
